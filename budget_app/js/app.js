@@ -8,11 +8,10 @@ class UI {
     this.budgetAmount = document.getElementById("budget-amount");
     this.expenseAmount = document.getElementById("expense-amount");
     this.balance = document.getElementById("balance");
-    this.budget = document.getElementById("budget");
     this.balanceAmount = document.getElementById("balance-amount");
     this.expenseForm = document.getElementById("expense-form");
-    this.expenseInput = document.getElementById("expense-input");
-    this.amountInput = document.getElementById("amount-input");
+    this.expenseTitle = document.getElementById("expense-input");
+    this.expenseValue = document.getElementById("amount-input");
     this.expenseList = document.getElementById("expense-list");
     this.itemList = [];
     this.itemID = 0;
@@ -20,7 +19,33 @@ class UI {
 
   //Methods and Properties
 
-  //Submit Form
+  //Show Balance
+  showBalance() {
+    //Calculate total amount after Budget - Expense
+    const expense = this.totalExpense();
+    const total = parseInt(this.budgetAmount.textContent) - expense;
+    //Set Balance to Total
+    this.balanceAmount.textContent = total;
+
+    //Change UI on Total
+    if (total < 0) {
+      this.balance.classList.remove("showGreen", "showBlack");
+      this.balance.classList.add("showRed");
+    } else if (total > 0) {
+      this.balance.classList.remove("showRed", "showBlack");
+      this.balance.classList.add("showGreen");
+    } else if (total === 0) {
+      this.balance.classList.remove("showGreen", "showRed");
+      this.balance.classList.add("showBlack");
+    }
+  }
+
+  totalExpense() {
+    let total = 400;
+    return total;
+  }
+
+  //Submit Budget Form
   submitBudgetForm() {
     const budgetValue = this.budgetInput.value;
 
@@ -43,25 +68,36 @@ class UI {
     }
   }
 
-  //Show Balance
-  showBalance() {
-    //Calculate total amount after Budget - Expense
-    const expense = this.totalExpense();
-    const total = parseInt(this.budgetAmount.textContent) - expense;
-    //Set Balance to Total
-    this.balanceAmount.textContent = total;
+  //Submit Expense Form
+  submitExpenseForm() {
+    const expenseTitle = this.expenseTitle.value;
+    const expenseValue = this.expenseValue.value;
+    if (expenseValue === "" || expenseTitle === "" || expenseValue <= 0) {
+      this.expenseFeedback.classList.add("showItem");
+      this.expenseFeedback.innerHTML = `<p>Invalid Expense Item or Value.</p>`;
 
-    //Change UI on Total
-    if (total <= 0) {
-      this.balance.classList.add("showRed");
-      this.budget.classList.remove("color");
-      this.budget.classList.add("showRed");
+      const props = this;
+      setTimeout(function() {
+        props.expenseFeedback.classList.remove("showItem");
+      }, 3200);
+    } else {
+      let amount = parseInt(expenseValue);
+      this.expenseTitle.value = "";
+      this.expenseValue.value = "";
+
+      //Add the Expense to List
+      let expense = {
+        id: this.itemID,
+        title: expenseTitle,
+        amount
+      };
+
+      //Increment ID and add to Expenses
+      this.itemID++;
+      this.itemList.push(expense);
     }
-  }
 
-  totalExpense() {
-    let total = 400;
-    return total;
+    console.log(this.itemList);
   }
 }
 
@@ -83,7 +119,7 @@ function eventListeners() {
   //Event listener for Expense Form
   expenseForm.addEventListener("submit", function(e) {
     e.preventDefault();
-    console.log("Expense Submitted");
+    ui.submitExpenseForm();
   });
 
   //Event listener for Expense List
